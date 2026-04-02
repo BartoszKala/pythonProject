@@ -1,0 +1,17 @@
+venv/
+.venv/
+
+test-results/
+playwright-report/
+.playwright/
+
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+
+.vscode/
+.idea/
+
+.DS_Store
+Thumbs.db
