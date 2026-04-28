@@ -1,1 +1,48 @@
 
+name: Playwright Tests — ING Cookie Consent
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: "${{ matrix.browser }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false          # pozostałe przeglądarki działają nawet jeśli jedna padnie
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run tests (${{ matrix.browser }})
+        run: |
+          pytest main.py \
+            --browser ${{ matrix.browser }} \
+            --tb=short \
+            -v
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.browser }}
+          path: |
+            .pytest_cache/
+            test-results/
