@@ -6,7 +6,6 @@ BASE_URL = "https://www.ing.pl"
 GDPR_CONSENT_WITH_ANALYTICS = {3, 7}
 
 
-
 def _accept_cookies_with_analytics(page: Page) -> None:
     dostosuj = page.get_by_role("button", name="Dostosuj")
     expect(dostosuj).to_be_visible(timeout=15_000)
