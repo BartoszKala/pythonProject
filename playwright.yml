@@ -9,15 +9,15 @@ on:
 
 jobs:
   test:
-    name: "${{ matrix.browser }}"
+    name: "Test on ${{ matrix.browser }}"
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false          # pozostałe przeglądarki działają nawet jeśli jedna padnie
+      fail-fast: false         # Inne przeglądarki testują dalej, nawet gdy jedna zawiedzie
       matrix:
         browser: [chromium, firefox, webkit]
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -27,13 +27,18 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # Instalujemy tylko przeglądarkę z aktualnej gałęzi matrixa
           playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run tests (${{ matrix.browser }})
+        # -p no:xdist wyłącza równoległość, która gryzie się z matrixem
+        # --browser wymusza użycie konkretnego silnika
         run: |
           pytest main.py \
             --browser ${{ matrix.browser }} \
+            -p no:xdist \
             --tb=short \
             -v
 
@@ -43,5 +48,5 @@ jobs:
         with:
           name: results-${{ matrix.browser }}
           path: |
-            .pytest_cache/
             test-results/
+            .pytest_cache/
